@@ -1,0 +1,17 @@
+/* Am I allowed to use "black" and "white" here or is this already racism? */
+*			{ background-color:black; color:white }
+a:link, a:visited	{ color:#0ff; text-decoration:none }
+a:hover, a:active	{ color:#0ff; text-decoration:underline }
+
+table			{ border:1px solid #00e; border-spacing:0 }
+td			{ border:1px solid #00e; padding:4px; vertical-align:top }
+.weekend td		{ background-color:#242 }
+.state td		{ background-color:#004 }
+
+.top			{ display:block; width:100%; min-width:100%; overflow-y:scroll; max-height:50vh }
+.topl			{ text-align:left }
+.topr			{ text-align:right }
+.topr table		{ margin-left:auto }
+
+TD.inf			{ background-color:#622 }
+
