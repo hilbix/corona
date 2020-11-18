@@ -54,5 +54,5 @@ Contrib?  Patch?
 License?
 
 - You are kidding, right?  There is absolutely nothing which can be copyrighted here.  Just strait done in a hurry.  A double no-brainer.
-- Free as in free beer, free speech, free air and free baby.
+- Hence it is CPP, so free as in free beer, free speech, free air and free baby.
 
