@@ -17,12 +17,14 @@ This is a small web application to print detailed information of Corona for norm
 	git clone --recursive https://github.com/hilbix/corona.git
 	ln --relative -s corona/web /srv/www/html/corona
 
+	make -C corona	# create the ES5 compatible code in corona/web/old/ with babeljs V7
+
 	corona/update.sh https://valentin.hilbig.de/corona/data/
 
 Notes:
 
 - Run corona/update.sh once a day to pull current data.
-- https://valentin.hilbig.de/corona/data/ is a mirror of https://covid19publicdata.blob.core.windows.net/ done once a day.
+- https://valentin.hilbig.de/corona/data/ is a mirror of https://covid19publicdata.blob.core.windows.net/ a couple times a day.
 - If my mirror fails, try the original source https://covid19publicdata.blob.core.windows.net/ instead
 
 
@@ -30,8 +32,14 @@ Notes:
 
 WTF why?
 
-- Because AFAIC the world has gone mad.  All presentations about COVID-19 are not done for a normal being.
+- Because AFAICS the world has gone mad.  All presentations about COVID-19 are not done for a normal being.
 - Hence I had to do it myself.  Sigh.
+
+`babeljs`?
+
+- Debian Buster:
+  - You need backports
+  - `apt-get install node-babel7`
 
 Contact? Bug?
 
