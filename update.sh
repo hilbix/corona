@@ -18,7 +18,7 @@ while read -ru6 sub
 do
 	DIR="data/${sub%/*}"
 	mkdir -p "$DIR"
-	wget -NP "$DIR/" "$BASE/$sub"
+	wget --progress=dot:mega --timestamping --directory-prefix="$DIR/" "$BASE/$sub"
 done 6<<URLS
 rki/covid19-germany-federalstates.csv
 rki/covid19-germany-counties.csv
