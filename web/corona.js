@@ -101,15 +101,15 @@ class Show
   init(arr)
     {
       this.filters = [];
-      this.selects = [];
+      this.selects = {};
 
       this.sel.clr();
       this.dat.clr();
 
       for (const f of arr)
         {
-          const s = new Select(this.sel, `${this.pre}${f.code}${this.nr}`);
-          this.selects.push(s);
+          const s = new Select(this.sel, `${this.pre}${f.code}${this.nr}`, this.selects[f.upd]);
+          this.selects[f.code] = s;
           if (f.csv)
             {
               this.filters.push(f.csv);
@@ -117,7 +117,7 @@ class Show
               this.filters.push(s);
             }
           else
-            s.set(_ => f.input, f.sort);
+            s.set(f.input, f.sort);
           s.on(_ => this.put());
         }
 
@@ -132,16 +132,16 @@ class ShowCR extends Show
     {
       super.init(
         [ { code:'cc', csv:'Country/Region' }
-        , { code:'cr', csv:'countyname' }
-        , { code:'ct', csv:'type' }
-        , { code:'n',  input:range(1,32), sort:sort_numeric }
+        , { code:'cr', csv:'countyname',    upd:'cc' }
+        , { code:'ct', csv:'type',          upd:'cr' }
+        , { code:'n',  input:_ => range(1,32), sort:sort_numeric }
         ]);
     }
   put()
     {
       this.el.clr();
       const l = this.csv.FILTER(this.filters)();
-      const n = parseInt(this.selects[3].$value);
+      const n = parseInt(this.selects['n'].$value);
 
       function sorter(a,b) { return a.date>b.date }
       l.sort(sorter);
