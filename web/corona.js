@@ -8,108 +8,47 @@ function* range(i,j) { for (; i<=j; i++) yield i }
 function sort_numeric(a,b) { return parseInt(a)>parseInt(b) }
 function weekday(day) { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day] }
 
-class Corona
+class CSV
   {
-  constructor(id='corona')
+  constructor(url)
     {
-      this.e	= E(id).clr();
-      this.i	= this.e.DIV.text('loading');
+      this.url	= url;
     }
-
-  inf(s)	{ this.i.clr().text(s) }
-
-  async main()
+  indicate(e)
     {
-      this.inf('loading...');
-      this.csv = await fetch('data/rki/covid19-germany-counties.csv').then(_ => _.text());
-      this.inf(`${(this.csv.length / 1000 | 0)/1000} MB loaded`);
+      this.i = e.SPAN;
+      return this;
+    }
+  INF(s)
+    {
+      if (this.i)
+        this.i.$text=s;
+    }
+  get LEN()
+    {
+      return this.csv.length;
+    }
+  get $recs()
+    {
+      return this.recs;
+    }
+  async Load()
+    {
+      this.INF(`loading ${this.url}`);
+      this.csv = await fetch(this.url).then(_ => _.text());
+      this.INF(`${(this.LEN / 1000 | 0)/1000}MB`);
       this.parse();
-      this.top();
+      return this;
     }
-
   parse()
     {
       const lines	= this.csv.split('\n');
       const heads	= lines.shift().split(',');
       this.recs		= lines.map(_ => Object.fromEntries(_.split(',').map((v,k) => [heads[k], v])));
-//      if (!recs[recs.length-1].id) recs.pop();
-      console.log(heads);
-      this.e.HR;
-//      this.e.DIV.TEXT(heads);
+      console.log(this.url, heads);
+      return this;
     }
-
-  top()
-    {
-      const t = this.e.TABLE.addclass('top');
-      const h = t.THEAD.TR;
-      const r = t.TBODY.TR;
-      this.a1 = this.SHOW(h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
-      this.a2 = this.SHOW(h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
-    }
-
-  SHOW(h, b, n)
-    {
-      const s1 = new Select(h, `cc${n}`)    .set(this.FILTER('Country/Region'));
-      const s2 = new Select(h, `cr${n}`, s1).set(this.FILTER('Country/Region',s1,'countyname'));
-      const s3 = new Select(h, `ct${n}`, s2).set(this.FILTER('Country/Region',s1,'countyname',s2,'type'));
-      const s4 = new Select(h, `n${n}`)     .set(_ => range(1,32), sort_numeric);
-
-      const o = b.TABLE;
-
-      const put = () =>
-        {
-          o.clr();
-          const l = this.FILTER('Country/Region',s1,'countyname',s2,'type',s3)();
-          const n = parseInt(s4.$value);
-
-          function sorter(a,b) { return a.date>b.date }
-          l.sort(sorter);
-
-          function br(...a) { const r=[]; for (const x of a) { if (r.length) r.push(E().BR); r.push(x) }; return r }
-          o.THEAD.TR.th('WD', 'date', 'inf', 'dth', br('inf', '100k'), br('dth','100k'), br('inf','new'), br('dth','new'), br('inf','new','100k'), br('dth','new','100k'));
-
-          let li = parseInt(l[l.length-1].newinfections) || parseInt(l[l.length-1].newdeaths) ? 1 : 2;
-          const last = l[l.length-li];
-//          for (const a in last) { o.TR.TD.text(a).$$.TD.text(last[a]); }
-
-          function print(d, i, n, head, we)
-            {
-              const x = l[i];
-
-              const w = new Date(x.date).getDay();
-              if (we || w==0 || w==6) d.addclass(we || 'weekend');
-
-              d.TD.ltext(weekday(w));
-              d.TD.ltext(head || x.date);
-              d.TD.rtext(`${x.infections}`);
-              d.TD.rtext(`${x.deaths}`);
-              d.TD.rtext(`${x.infections / x.population * 100000 | 0}`);
-              d.TD.rtext(`${x.deaths / x.population * 100000 | 0}`);
-
-              const sum = {};
-              for (let k=n; --k>=0; )
-                for (const j of ['newinfections','newdeaths'])
-                  sum[j] = (sum[j] || 0)+parseInt(l[i-k][j]);
-
-              d.TD.rtext(`${sum.newinfections}`).addclass('inf');
-              d.TD.rtext(`${sum.newdeaths}`);
-              d.TD.rtext(`${sum.newinfections / x.population * 100000 | 0}`);
-              d.TD.rtext(`${sum.newdeaths / x.population * 100000 | 0}`);
-            }
-
-          const b = o.TBODY;
-          for (const k of [1,3,7,30])
-            print(b.TR, l.length-li, k, `${k} days`, 'state');
-          for (let i=l.length; --i>=n; )
-            print(b.TR, i, n);
-        }
-
-      s3.on(put);
-      s4.on(put);
-      put();
-    }
-
-  FILTER(...args)
+  FILTER(arr)
     {
       function filt(fn, k, v)
         {
@@ -130,20 +69,145 @@ class Corona
             }
         }
 
+      arr=[...arr];
       let ret	= _ => this.recs;
-      while (args.length>1)
+      while (arr.length>1)
         {
-          const k	= args.shift();
-          const v	= args.shift();
+          const k	= arr.shift();
+          const v	= arr.shift();
           ret		= filt(ret, k, v);
         }
-      if (args.length==1)
+      if (arr.length==1)
         {
-          const k	= args.shift();
+          const k	= arr.shift();
           ret = sel(ret, k);
         }
 
       return ret;
+    }
+  };
+
+class Show
+  {
+  constructor(csv, sel, data, nr, prefix)
+    {
+      this.csv	= csv;
+      this.sel	= sel;
+      this.dat	= data || sel;
+      this.nr	= nr || '0';
+      this.pre	= prefix || '';
+      this.init();
+    }
+  init(arr)
+    {
+      this.filters = [];
+      this.selects = [];
+
+      this.sel.clr();
+      this.dat.clr();
+
+      for (const f of arr)
+        {
+          const s = new Select(this.sel, `${this.pre}${f.code}${this.nr}`);
+          this.selects.push(s);
+          if (f.csv)
+            {
+              this.filters.push(f.csv);
+              s.set(this.csv.FILTER(this.filters));
+              this.filters.push(s);
+            }
+          else
+            s.set(_ => f.input, f.sort);
+          s.on(_ => this.put());
+        }
+
+      this.el = this.dat.TABLE;
+      this.put();
+    }
+  };
+
+class ShowCR extends Show
+  {
+  init()
+    {
+      super.init(
+        [ { code:'cc', csv:'Country/Region' }
+        , { code:'cr', csv:'countyname' }
+        , { code:'ct', csv:'type' }
+        , { code:'n',  input:range(1,32), sort:sort_numeric }
+        ]);
+    }
+  put()
+    {
+      this.el.clr();
+      const l = this.csv.FILTER(this.filters)();
+      const n = parseInt(this.selects[3].$value);
+
+      function sorter(a,b) { return a.date>b.date }
+      l.sort(sorter);
+
+      function br(...a) { const r=[]; for (const x of a) { if (r.length) r.push(E().BR); r.push(x) }; return r }
+
+      this.el.THEAD.TR.th('WD', 'date', 'inf', 'dth', br('inf', '100k'), br('dth','100k'), br('inf','new'), br('dth','new'), br('inf','new','100k'), br('dth','new','100k'));
+
+      let li = parseInt(l[l.length-1].newinfections) || parseInt(l[l.length-1].newdeaths) ? 1 : 2;
+      const last = l[l.length-li];
+//    for (const a in last) { this.el.TR.TD.text(a).$$.TD.text(last[a]); }
+
+      function print(d, i, n, head, we)
+        {
+          const x = l[i];
+
+          const w = new Date(x.date).getDay();
+          if (we || w==0 || w==6) d.addclass(we || 'weekend');
+
+          d.TD.ltext(weekday(w));
+          d.TD.ltext(head || x.date);
+          d.TD.rtext(`${x.infections}`);
+          d.TD.rtext(`${x.deaths}`);
+          d.TD.rtext(`${x.infections / x.population * 100000 | 0}`);
+          d.TD.rtext(`${x.deaths / x.population * 100000 | 0}`);
+
+          const sum = {};
+          for (let k=n; --k>=0; )
+            for (const j of ['newinfections','newdeaths'])
+              sum[j] = (sum[j] || 0)+parseInt(l[i-k][j]);
+
+          d.TD.rtext(`${sum.newinfections}`).addclass('inf');
+          d.TD.rtext(`${sum.newdeaths}`);
+          d.TD.rtext(`${sum.newinfections / x.population * 100000 | 0}`);
+          d.TD.rtext(`${sum.newdeaths / x.population * 100000 | 0}`);
+        }
+
+      const b = this.el.TBODY;
+      for (const k of [1,3,7,30])
+        print(b.TR, l.length-li, k, `${k} days`, 'state');
+      for (let i=l.length; --i>=n; )
+        print(b.TR, i, n);
+    }
+  };
+
+class Corona
+  {
+  constructor(id='corona')
+    {
+      this.e	= E(id).clr();
+    }
+
+  async main()
+    {
+      this.csv	= await new CSV('data/rki/covid19-germany-counties.csv').indicate(this.e).Load();
+      this.e.HR;
+      this.top();
+    }
+
+  top()
+    {
+      const t = this.e.TABLE.addclass('top');
+      const h = t.THEAD.TR;
+      const r = t.TBODY.TR;
+      this.a1 = new ShowCR(this.csv, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
+      this.a2 = new ShowCR(this.csv, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
     }
   };
 
