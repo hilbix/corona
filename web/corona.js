@@ -20,10 +20,11 @@ class Corona
 
   async main()
     {
+      this.e.SPAN.text('Germany RKI: ');
       this.csv_r	= await new CSV(ShowCR.URL).indicate(this.e).Load();
       this.e.SPAN.text(' ');
       this.csv_s	= await new CSV(ShowCS.URL).indicate(this.e).Load();
-      this.e.SPAN.text(' ');
+      this.e.SPAN.text(' World ECDC: ');
       this.csv_w	= await new CSV(ShowCW.URL).indicate(this.e).Load();
       this.e.HR;
       this.a();
