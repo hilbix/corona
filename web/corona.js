@@ -106,6 +106,7 @@ class ShowCR extends Show
 
       this.el.THEAD.TR.th('WD', 'date', 'inf', 'dth', br('inf', '100k'), br('dth','100k'), br('inf','new'), br('dth','new'), br('inf','new','100k'), br('dth','new','100k'));
 
+      // skip today if there is no data yet (or nothing happened)
       let li = parseInt(l[l.length-1].newinfections) || parseInt(l[l.length-1].newdeaths) ? 1 : 2;
       const last = l[l.length-li];
 //    for (const a in last) { this.el.TR.TD.text(a).$$.TD.text(last[a]); }
