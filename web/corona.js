@@ -4,89 +4,42 @@
 
 DomReady.then(_ => new Corona().main());
 
+
+// microlib
 function* range(i,j) { for (; i<=j; i++) yield i }
 function sort_numeric(a,b) { return parseInt(a)>parseInt(b) }
 function weekday(day) { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day] }
 
-class CSV
+// Corona main App, see DomReady above
+class Corona
   {
-  constructor(url)
+  constructor(id='corona')
     {
-      this.url	= url;
+      this.e	= E(id).clr();
     }
-  indicate(e)
-    {
-      this.i = e.SPAN;
-      return this;
-    }
-  INF(s)
-    {
-      if (this.i)
-        this.i.$text=s;
-    }
-  get LEN()
-    {
-      return this.csv.length;
-    }
-  get $recs()
-    {
-      return this.recs;
-    }
-  async Load()
-    {
-      this.INF(`loading ${this.url}`);
-      this.csv = await fetch(this.url).then(_ => _.text());
-      this.INF(`${(this.LEN / 1000 | 0)/1000}MB`);
-      this.parse();
-      return this;
-    }
-  parse()
-    {
-      const lines	= this.csv.split('\n');
-      const heads	= lines.shift().split(',');
-      this.recs		= lines.map(_ => Object.fromEntries(_.split(',').map((v,k) => [heads[k], v])));
-      console.log(this.url, heads);
-      return this;
-    }
-  FILTER(arr)
-    {
-      function filt(fn, k, v)
-        {
-          return function ()
-            {
-              const l = fn();
-              const x = v.$value;
-//              console.log('filt', k, x);
-              return l.filter(_ => _[k]==x);
-            }
-        }
-      function sel(fn, k)
-        {
-          return function ()
-            {
-              const l = fn();
-              return l.map(_ => _[k]);
-            }
-        }
 
-      arr=[...arr];
-      let ret	= _ => this.recs;
-      while (arr.length>1)
-        {
-          const k	= arr.shift();
-          const v	= arr.shift();
-          ret		= filt(ret, k, v);
-        }
-      if (arr.length==1)
-        {
-          const k	= arr.shift();
-          ret = sel(ret, k);
-        }
+  async main()
+    {
+      this.csv	= await new CSV('data/rki/covid19-germany-counties.csv').indicate(this.e).Load();
+      this.e.HR;
+      this.top();
+    }
 
-      return ret;
+  top()
+    {
+      const t = this.e.TABLE.addclass('top');
+      const h = t.THEAD.TR;
+      const r = t.TBODY.TR;
+      this.a1 = new ShowCR(this.csv, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
+      this.a2 = new ShowCR(this.csv, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
     }
   };
 
+// Common CSV presenter
+// new Show(new CSV(), selectorelement, dataelement, UrlState_nr, UrlState_prefix).init([description])
+// description is an Array of objects:
+// {code:'urlstate', input:data-fn, sort:sort-fn, upd:'code-of-higher-ranked-selector'}
+// input/sort see SelectUnique; input:data-fn can be replaced by csv:'header' to refer to the CSV
 class Show
   {
   constructor(csv, sel, data, nr, prefix)
@@ -108,13 +61,13 @@ class Show
 
       for (const f of arr)
         {
-          const s = new Select(this.sel, `${this.pre}${f.code}${this.nr}`, this.selects[f.upd]);
+          const s = new SelectUnique(this.sel, `${this.pre}${f.code}${this.nr}`, this.selects[f.upd]);
           this.selects[f.code] = s;
           if (f.csv)
             {
               this.filters.push(f.csv);
-              s.set(this.csv.FILTER(this.filters));
-              this.filters.push(s);
+              s.set(this.csv.FILTER(this.filters), f.sort);
+              this.filters.push(_ => s.$value);
             }
           else
             s.set(f.input, f.sort);
@@ -126,6 +79,8 @@ class Show
     }
   };
 
+// Data presentation for
+// data/rki/covid19-germany-counties.csv
 class ShowCR extends Show
   {
   init()
@@ -137,6 +92,7 @@ class ShowCR extends Show
         , { code:'n',  input:_ => range(1,32), sort:sort_numeric }
         ]);
     }
+  // XXX TODO XXX This needs a lot of rework
   put()
     {
       this.el.clr();
@@ -187,31 +143,109 @@ class ShowCR extends Show
     }
   };
 
-class Corona
+////////////////////////////////////////////////////////////////////////
+// Below should go into a lib
+////////////////////////////////////////////////////////////////////////
+
+// Class to read and filter CSV files
+class CSV
   {
-  constructor(id='corona')
+  constructor(url)
     {
-      this.e	= E(id).clr();
+      this.url	= url;
+    }
+  indicate(e)
+    {
+      this.i = e.SPAN;
+      return this;
+    }
+  inf(s)
+    {
+      if (this.i)
+        this.i.$text=s;
+      return this;
+    }
+  get $len()
+    {
+      return this.csv.length;
+    }
+  // XXX TODO XXX change into iterator!
+  get $recs()
+    {
+      return this.recs;
     }
 
-  async main()
+  // load the CSV
+  async Load()
     {
-      this.csv	= await new CSV('data/rki/covid19-germany-counties.csv').indicate(this.e).Load();
-      this.e.HR;
-      this.top();
+      this.inf(`loading ${this.url}`);
+      this.csv = await fetch(this.url).then(_ => _.text());
+      this.inf(`${(this.$len / 1000 | 0)/1000}MB`);
+      this.parse();
+      return this;
+    }
+  parse()
+    {
+      const lines	= this.csv.split('\n');
+      const heads	= lines.shift().split(',');
+      this.recs		= lines.map(_ => Object.fromEntries(_.split(',').map((v,k) => [heads[k], v])));
+      console.log(this.url, heads);
+      return this;
     }
 
-  top()
+  // XXX TODO XXX change into iterator!
+  // FILTER([filterdef]) return selected CSV lines
+  // filterdef:
+  //	'header'				// returns entries
+  //	'header', valuefunction			// return lines
+  //	'header', valuefunction, filterdef
+  // valuefunction() is called to retrieve the actual value
+  FILTER(arr)
     {
-      const t = this.e.TABLE.addclass('top');
-      const h = t.THEAD.TR;
-      const r = t.TBODY.TR;
-      this.a1 = new ShowCR(this.csv, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
-      this.a2 = new ShowCR(this.csv, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
+      function filt(fn, k, v)
+        {
+          return function ()
+            {
+              const l = fn();
+              const x = v();
+//            console.log('filt', k, x);
+              return l.filter(_ => _[k]==x);
+            }
+        }
+      function sel(fn, k)
+        {
+          return function ()
+            {
+              const l = fn();
+              return l.map(_ => _[k]);
+            }
+        }
+
+      arr=[...arr];	// do not alter the array passed in
+      let ret	= _ => this.recs;
+      while (arr.length>1)
+        {
+          const k	= arr.shift();
+          const v	= arr.shift();
+          ret		= filt(ret, k, v);
+        }
+      if (arr.length==1)
+        {
+          const k	= arr.shift();
+          ret = sel(ret, k);
+        }
+
+      return ret;
     }
   };
 
-class Select extends OnOff
+// DOM select class for sorted unique elements (duplicates will be eradicated).
+// new SelectUnique(parentelement, UrlState-ID, opt_higher-ranked-select).set(data_fn, sort_fn);
+// data_fn() return an iterable.
+// sort_fn(a,b) returns the sorting of elements
+// higher-ranked-select is the selector instance of the higher ranked select,
+// which means:  When the higher ranked select canges, this one needs to be updated, too.
+class SelectUnique extends OnOff
   {
   constructor(e, id, chg)
     {
@@ -255,6 +289,7 @@ class Select extends OnOff
         this.add(s[a], a+1, s[a]==this.s.state);
       return this.sel();
     }
+
   add(t,i,sel)
     {
       const o = this.e.OPTION.text(t);
