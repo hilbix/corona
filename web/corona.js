@@ -10,6 +10,13 @@ function* range(i,j) { for (; i<=j; i++) yield i }
 function sort_numeric(a,b) { return parseInt(a)>parseInt(b) }
 function weekday(day) { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day] }
 
+function wtf(x)
+{
+  x = x.replace(/"/g,'').replace(/;/,',');
+  console.log(x);
+  return x;
+}
+
 // Corona main App, see DomReady above
 class Corona
   {
@@ -23,12 +30,15 @@ class Corona
       this.csv_r	= await new CSV('data/rki/covid19-germany-counties.csv').indicate(this.e).Load();
       this.e.SPAN.text(' ');
       this.csv_s	= await new CSV('data/rki/covid19-germany-federalstates.csv').indicate(this.e).Load();
+      this.e.SPAN.text(' ');
+      this.csv_w	= await new CSV('data/ecdc/covid19-ECDC.csv').indicate(this.e).Load();
       this.e.HR;
-      this.top();
-      this.mid();
+      this.a();
+      this.b();
+      this.c();
     }
 
-  top()
+  a()
     {
       const t = this.e.TABLE.addclass('top');
       const h = t.THEAD.TR;
@@ -36,13 +46,21 @@ class Corona
       this.a1 = new ShowCR(this.csv_r, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
       this.a2 = new ShowCR(this.csv_r, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
     }
-  mid()
+  b()
     {
       const t = this.e.TABLE.addclass('top');
       const h = t.THEAD.TR;
       const r = t.TBODY.TR;
       this.b1 = new ShowCS(this.csv_s, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
       this.b2 = new ShowCS(this.csv_s, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
+    }
+  c()
+    {
+      const t = this.e.TABLE.addclass('top');
+      const h = t.THEAD.TR;
+      const r = t.TBODY.TR;
+      this.b1 = new ShowCW(this.csv_w, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
+      this.b2 = new ShowCW(this.csv_w, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
     }
   };
 
@@ -126,7 +144,7 @@ class ShowCorona extends Show
           d.TD.rtext(`${x.deaths / x.population * 100000 | 0}`);
 
           const sum = {};
-          for (let k=n; --k>=0; )
+          for (let k=n; --k>=0 && k<=i; )
             for (const j of ['newinfections','newdeaths'])
               sum[j] = (sum[j] || 0)+parseInt(l[i-k][j]);
 
@@ -139,8 +157,8 @@ class ShowCorona extends Show
       const b = this.el.TBODY;
       for (const k of [1,3,7,30])
         print(b.TR, l.length-li, k, `${k} days`, 'state');
-      for (let i=l.length; --i>=n; )
-        print(b.TR, i, n);
+      for (let i=l.length; i>=n; )
+        print(b.TR, --i, n);
     }
   };
 
@@ -170,7 +188,22 @@ class ShowCS extends ShowCorona
       super.init(
         [ { code:'cs', csv:'Country/Region' }
         , { code:'cf', csv:'federalstate',  upd:'cs' }
-        , { code:'sn',  input:_ => range(1,32), sort:sort_numeric }
+        , { code:'sn', input:_ => range(1,32), sort:sort_numeric }
+        ]);
+    }
+  };
+
+// Data presentation for
+// data/rki/covid19-germany-federalstates.csv
+class ShowCW extends ShowCorona
+  {
+  init()
+    {
+      this.delta = 'wn';
+      super.init(
+        [ { code:'cw', csv:'continent' }
+        , { code:'cp', csv:'Country/Region', upd:'cw' }
+        , { code:'wn', input:_ => range(1,32), sort:sort_numeric }
         ]);
     }
   };
@@ -218,9 +251,9 @@ class CSV
     }
   parse()
     {
-      const lines	= this.csv.replace('\r','').split('\n');
-      const heads	= lines.shift().split(',');
-      this.recs		= lines.map(_ => Object.fromEntries(_.split(',').map((v,k) => [heads[k], v])));
+      const lines	= this.csv.split(',').join(';').replace(/"[^"]*"/g, _ => wtf(_)).replace('\r','').split('\n');
+      const heads	= lines.shift().split(';');
+      this.recs		= lines.map(_ => Object.fromEntries(_.split(';').map((v,k) => [heads[k], v])));
       console.log(this.url, heads);
       return this;
     }
