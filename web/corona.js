@@ -10,13 +10,6 @@ function* range(i,j) { for (; i<=j; i++) yield i }
 function sort_numeric(a,b) { return parseInt(a)>parseInt(b) }
 function weekday(day) { return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day] }
 
-function wtf(x)
-{
-  x = x.replace(/"/g,'').replace(/;/,',');
-  console.log(x);
-  return x;
-}
-
 // Corona main App, see DomReady above
 class Corona
   {
@@ -212,6 +205,7 @@ class ShowCW extends ShowCorona
 // Below should go into a lib
 ////////////////////////////////////////////////////////////////////////
 
+// A very hackish CSV reader.  Works with files containing , or ; (transforms ; within "" into ,)
 // Class to read and filter CSV files
 class CSV
   {
@@ -251,8 +245,12 @@ class CSV
     }
   parse()
     {
-      const lines	= this.csv.split(',').join(';').replace(/"[^"]*"/g, _ => wtf(_)).replace('\r','').split('\n');
-      const heads	= lines.shift().split(';');
+      const lines	= this.csv
+        .split(',').join(';')						// replace , with ;
+        .replace(/"[^"]*"/g, _ => _.replace(/"/g,'').replace(/;/,','))	// replace "TEXT" with ; into TEXT with , to escape split on ;
+        .replace(/\r/g,'')						// Hello Windows!  I do not like your ending.
+        .split('\n');							// split into lines
+      const heads	= lines.shift().split(';');			// split into columns on ;
       this.recs		= lines.map(_ => Object.fromEntries(_.split(';').map((v,k) => [heads[k], v])));
       console.log(this.url, heads);
       return this;
