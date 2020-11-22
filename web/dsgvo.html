@@ -1,0 +1,96 @@
+<!doctype html>
+<html><head><meta charset="utf-8"/>
+<link rel="stylesheet" type="text/css" href="corona.css"/>
+<title>Datenschutzhinweis</title>
+<script src="es11.js"></script>
+<script src="corona.js"></script>
+</head><body>
+<div>[ <a href="./">Corona</a> | <a href="old/">alte Browser</a> ]
+<hr/>
+<h1>Datenschutzhinweis der Seite sowie Unterseiten von http://valentin.hilbig.de/ und https://valentin.hilbig.de/</h1>
+<p>
+Die Seiten hier enthalten keinerlei Anteile, die gem. DSGVO geregelt werden müssten.
+</p>
+<ul><li>
+Diese Seite wird rein privat betrieben und wendet sich ausschließlich an Privatpersonen.
+</li><li>
+Diese Seite verwendet weder Cookies noch DrittURLs.
+</li><li>
+<b>Achtung!</b> Einige Links zeigen aber auf DrittURLs und einige Browser laden solche DrittURLs schon bevor man sie anklickt.
+Das ist aber ein Fehler in der Einstellung der Browser und kann von mir nicht wirklich unterbunden werden.
+</li><li>
+JavaScript wird lediglich zum Abruf, Aufbereitung und Darstellung der Coronadaten verwendet.
+</li><li>
+Die Corona-Daten werden hier per Mirror bereitgestellt (Same Origin).  CORS, also Drittseiten, werden für den Datenabruf nicht verwendet.
+</li><li>
+Abgesehen von der IP werden keinerlei personenbezogene Daten erhoben, verarbeitet oder gespeichert.
+</li><li>
+Die IP wird nicht an Dritte weitergegeben.
+</li><li>
+Ich habe außerdem keinerlei Möglichkeit, die IP zu deanonymisieren.
+</li><li>
+Somit stellt die IP in dem hier verwendeten Kontext ein pseudonymes Datum gem. DSGVO dar.
+</li><li>
+Somit fallen keinerlei Daten an, auf die weitergehende Regeln der DSGVO angewandt werden müssten.
+</li></ul>
+
+<h2>Sicherheitshinweis bei der Verwendung von HTTPS</h2>
+<p>
+Meine Seite unterstützt HTTP und HTTPS.
+<b>Wer HTTPS einsetzt tut dies auf eigene Gefahr!</b>
+Ich empfehle deshalb <b>aus Datenschutzgründen dringend</b>, wenn möglich auf HTTPS zu verzichten.
+</p>
+<ul><li>
+Ich verwende LetsEncrypt für mein HTTPS-Zertifikat.  Dies wird also über Amerika bereitgestellt.
+</li><li>
+LetsEncrypt stellt keinen Warrant Canary bereit und muss somit als Sicherheitsrisiko (durch NSL) angesehen werden.
+</li><li>
+Außerdem ist OCSP-Stapeling extrem fragil und funktioniert meistens nicht richtig.
+</li><li>
+Deshalb funken Browser per OCSP-Request das verwendete Zertifikat nach Hause, sprich:
+Wer beim Aufruf meiner Seite HTTPS verwendet teilt LetsEncrypt diesen Seitenaufruf und damit die IP mit.
+Da Amerika die Möglichkeit hat die IP zu deanonymisieren, wird durch den ubiquitären Einsatz von HTTPS der Datenschutz untergraben.
+</li><li>
+Dagegen kann ich auf meiner Seite leider gar nichts tun (außer ggf. HTTPS abzuschalten),
+der Fehler steckt nämlich leider tief in der Konstruktion von HTTPS.
+</li><li>
+<b>OCSP abzuschalten ist extrem gefährlich</b>, denn das hebelt das ganze Schutzgerüst rund um HTTPS gegen MitM und Fakezertifikate aus.
+<b>Deshalb niemals OCSP im Browser abschalten</b> außer man braucht HTTPS überhaupt niemals (wieso dann aber verwenden?).
+</li><li>
+Das richtige Verhalten ist somit:
+<ul><li> HTTPS ausschließlich dort verwenden wo es unabdingbar notwendig ist.
+</li><li> Unabdingbar notwendig ist es z. B. beim Onlinebanking.
+</li><li> Nicht notwendig ist HTTPS für die sicher Passworteingabe bei Logins!  <b>Aber Warnung!</b> Die meisten Logins benötigen HTTPS weil sie fehlkonstruiert sind!  Sie ohne HTTPS zu verwenden wäre äußerst gefährlich!  Es zeigt aber, dass der Seitenbetreiber das Problem nicht verstanden hat</b> (höchstwahrscheinlich weil sich der Betreiber einen feuchten Kehrricht um ehrliche Sicherheit schert)!
+</li><li> Auf die Klartextübertragung eines Passworts zu setzen ist schon lange nicht mehr zeitgemäß.
+</li><li> HTTPS zu verwenden um das Passwort an den Server zu übermitteln ändert daran exakt gar nichts, denn das Passwort landet ja trotzdem im Klartext auf dem Server!  (Und im Klartext auf jeder dazwischengeschalteten Middlebox wie CloudFlare.)
+</li></ul>
+</li><li>
+HTTPS wird für nicht-sicherheitsrelevante Seiten wie meine nicht benötigt.
+</li><li>
+Die Übertragung selbst wird hierzulande bereits durch DSGVO sowie Fernmeldegeheimnis geschützt.
+</li><li>
+<b>Der Datenschutz kann somit nur durch den Verzicht auf HTTPS eingehalten werden.</b>
+</li></ul>
+<p>
+Ein zusätzliches wirklich funktionierendes verschlüsselndes E2E-Layer wäre technisch selbstverständlich äußerst wünschenswert.
+Leider ist HTTPS eine Krücke die kein wirklich sicheres E2E-Layer bereitstellt.
+</p><p>
+Hier sind die Browserhersteller gefragt.  Aber Browser kennen nicht einmal einen eingebauten Mechanismus,
+der wirksam verhindert, dass ein Passwort den Browser im Klartext verlässt (unabhängig vom Einsatz von HTTPS)!
+Wenn sich die Browserhersteller selbst gegen diese allereinfachste Form der Sicherheit sperren,
+wie kann man da erwarten, dass die Browserhersteller jemals einen effektiven Schutz von P2P in den Browser einbauen?
+</p><p>
+Leider wurden signiertes JavaScript zusammen mit Java Webstart beerdigt, weshalb Webseiten den fehlenden Schutz im Browser
+nicht wirklich sinnvoll selbst nachrüsten können.
+(Subressource-Integrity hat leider das Henne-Ei-Problem, am Anfang steht leider immer etwas komplett unsigniertes.
+HTTPS authentisiert ja nicht den Seiteninhalt, es schützt lediglich die Übertragung der ansonsten
+unauthentisierten Seite, löst unser Problem genau exakt nicht.)
+</p><p>
+Es gibt also nur das plakative Fazit: <b>HTTPS gefährdet den Datenschutz.</b>  Punkt.
+</p>
+<hr>
+<a href="https://github.com/hilbix/corona">Code</a>
+<a href="https://github.com/swildermann/COVID-19">Data</a>
+<a href="dsgvo.html">Datenschutzhinweis</a>
+<a href="http://permalink.de/tino/impressum">Impressum</a>
+<body></html>
