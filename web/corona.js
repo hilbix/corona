@@ -109,6 +109,7 @@ class ShowCorona extends Show
       this.el.clr();
       const l = this.csv.FILTER(this.filters)();
       const n = parseInt(this.selects[this.delta].$value);
+      const today = new Date().toISOString().split('T').shift();
 
       function sorter(a,b) { return a.date>b.date }
       l.sort(sorter);
@@ -117,9 +118,15 @@ class ShowCorona extends Show
 
       this.el.THEAD.TR.th('WD', 'date', 'inf', 'dth', br('inf', '100k'), br('dth','100k'), br('inf','new'), br('dth','new'), br('inf','new','100k'), br('dth','new','100k'));
 
+      let max = l.length;
+      while (--max>=0 && l[max].date>today);
+
       // skip today if there is no data yet (or nothing happened)
-      let li = parseInt(l[l.length-1].newinfections) || parseInt(l[l.length-1].newdeaths) ? 1 : 2;
-      const last = l[l.length-li];
+      const li = parseInt(l[max].newinfections) || parseInt(l[max].newdeaths) ? 0 : 1;
+
+      if (max-li<0)
+        max = li = 0;
+      const last = l[max-li];
 //    for (const a in last) { this.el.TR.TD.text(a).$$.TD.text(last[a]); }
 
       function print(d, i, n, head, we)
@@ -149,8 +156,8 @@ class ShowCorona extends Show
 
       const b = this.el.TBODY;
       for (const k of [1,3,7,30])
-        print(b.TR, l.length-li, k, `${k} days`, 'state');
-      for (let i=l.length; i>=n; )
+        print(b.TR, max-li, k, `${k} days`, 'state');
+      for (let i=max+1; i>=n; )
         print(b.TR, --i, n);
     }
   };
