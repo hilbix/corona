@@ -20,11 +20,11 @@ class Corona
 
   async main()
     {
-      this.csv_r	= await new CSV('data/rki/covid19-germany-counties.csv').indicate(this.e).Load();
+      this.csv_r	= await new CSV(ShowCR.URL).indicate(this.e).Load();
       this.e.SPAN.text(' ');
-      this.csv_s	= await new CSV('data/rki/covid19-germany-federalstates.csv').indicate(this.e).Load();
+      this.csv_s	= await new CSV(ShowCS.URL).indicate(this.e).Load();
       this.e.SPAN.text(' ');
-      this.csv_w	= await new CSV('data/ecdc/covid19-ECDC.csv').indicate(this.e).Load();
+      this.csv_w	= await new CSV(ShowCW.URL).indicate(this.e).Load();
       this.e.HR;
       this.a();
       this.b();
@@ -159,6 +159,7 @@ class ShowCorona extends Show
 // data/rki/covid19-germany-counties.csv
 class ShowCR extends ShowCorona
   {
+  static URL = 'data/rki/covid19-germany-counties.csv';
   init()
     {
       this.delta = 'n';
@@ -175,6 +176,7 @@ class ShowCR extends ShowCorona
 // data/rki/covid19-germany-federalstates.csv
 class ShowCS extends ShowCorona
   {
+  static URL = 'data/rki/covid19-germany-federalstates.csv';
   init()
     {
       this.delta = 'sn';
@@ -187,9 +189,10 @@ class ShowCS extends ShowCorona
   };
 
 // Data presentation for
-// data/rki/covid19-germany-federalstates.csv
+// data/ecdc/covid19-ECDC.csv
 class ShowCW extends ShowCorona
   {
+  static URL = 'data/ecdc/covid19-ECDC.csv';
   init()
     {
       this.delta = 'wn';
