@@ -20,9 +20,12 @@ class Corona
 
   async main()
     {
-      this.csv	= await new CSV('data/rki/covid19-germany-counties.csv').indicate(this.e).Load();
+      this.csv_r	= await new CSV('data/rki/covid19-germany-counties.csv').indicate(this.e).Load();
+      this.e.SPAN.text(' ');
+      this.csv_s	= await new CSV('data/rki/covid19-germany-federalstates.csv').indicate(this.e).Load();
       this.e.HR;
       this.top();
+      this.mid();
     }
 
   top()
@@ -30,8 +33,16 @@ class Corona
       const t = this.e.TABLE.addclass('top');
       const h = t.THEAD.TR;
       const r = t.TBODY.TR;
-      this.a1 = new ShowCR(this.csv, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
-      this.a2 = new ShowCR(this.csv, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
+      this.a1 = new ShowCR(this.csv_r, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
+      this.a2 = new ShowCR(this.csv_r, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
+    }
+  mid()
+    {
+      const t = this.e.TABLE.addclass('top');
+      const h = t.THEAD.TR;
+      const r = t.TBODY.TR;
+      this.b1 = new ShowCS(this.csv_s, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
+      this.b2 = new ShowCS(this.csv_s, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
     }
   };
 
@@ -79,25 +90,14 @@ class Show
     }
   };
 
-// Data presentation for
-// data/rki/covid19-germany-counties.csv
-class ShowCR extends Show
+class ShowCorona extends Show
   {
-  init()
-    {
-      super.init(
-        [ { code:'cc', csv:'Country/Region' }
-        , { code:'cr', csv:'countyname',    upd:'cc' }
-        , { code:'ct', csv:'type',          upd:'cr' }
-        , { code:'n',  input:_ => range(1,32), sort:sort_numeric }
-        ]);
-    }
   // XXX TODO XXX This needs a lot of rework
   put()
     {
       this.el.clr();
       const l = this.csv.FILTER(this.filters)();
-      const n = parseInt(this.selects['n'].$value);
+      const n = parseInt(this.selects[this.delta].$value);
 
       function sorter(a,b) { return a.date>b.date }
       l.sort(sorter);
@@ -144,6 +144,37 @@ class ShowCR extends Show
     }
   };
 
+// Data presentation for
+// data/rki/covid19-germany-counties.csv
+class ShowCR extends ShowCorona
+  {
+  init()
+    {
+      this.delta = 'n';
+      super.init(
+        [ { code:'cc', csv:'Country/Region' }
+        , { code:'cr', csv:'countyname',    upd:'cc' }
+        , { code:'ct', csv:'type',          upd:'cr' }
+        , { code:'n',  input:_ => range(1,32), sort:sort_numeric }
+        ]);
+    }
+  };
+
+// Data presentation for
+// data/rki/covid19-germany-federalstates.csv
+class ShowCS extends ShowCorona
+  {
+  init()
+    {
+      this.delta = 'sn';
+      super.init(
+        [ { code:'cs', csv:'Country/Region' }
+        , { code:'cf', csv:'federalstate',  upd:'cs' }
+        , { code:'sn',  input:_ => range(1,32), sort:sort_numeric }
+        ]);
+    }
+  };
+
 ////////////////////////////////////////////////////////////////////////
 // Below should go into a lib
 ////////////////////////////////////////////////////////////////////////
@@ -187,7 +218,7 @@ class CSV
     }
   parse()
     {
-      const lines	= this.csv.split('\n');
+      const lines	= this.csv.replace('\r','').split('\n');
       const heads	= lines.shift().split(',');
       this.recs		= lines.map(_ => Object.fromEntries(_.split(',').map((v,k) => [heads[k], v])));
       console.log(this.url, heads);
