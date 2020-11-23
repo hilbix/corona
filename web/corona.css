@@ -13,5 +13,10 @@ td			{ border:1px solid #00e; padding:4px; vertical-align:top }
 .topr			{ text-align:right }
 .topr table		{ margin-left:auto }
 
+.grey8			{ background-color:#888 }
+.red8			{ background-color:#800 }
+.green8			{ background-color:#080 }
+.blue8			{ background-color:#008 }
+
 TD.inf			{ background-color:#622 }
 
