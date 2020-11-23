@@ -31,34 +31,18 @@ class Corona
       this.e.SPAN.text(' World ECDC: ');
       this.csv_w	= await new CSV(ShowCW.URL).indicate(this.e).Load();
       this.e.HR;
-      this.a();
-      this.b();
-      this.c();
+      this.show(ShowCR, this.csv_r);
+      this.show(ShowCS, this.csv_s);
+      this.show(ShowCW, this.csv_w);
     }
 
-  a()
+  show(klass, csv)
     {
       const t = this.e.TABLE.addclass('top');
       const h = t.THEAD.TR;
       const r = t.TBODY.TR;
-      this.a1 = new ShowCR(this.csv_r, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
-      this.a2 = new ShowCR(this.csv_r, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
-    }
-  b()
-    {
-      const t = this.e.TABLE.addclass('top');
-      const h = t.THEAD.TR;
-      const r = t.TBODY.TR;
-      this.b1 = new ShowCS(this.csv_s, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
-      this.b2 = new ShowCS(this.csv_s, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
-    }
-  c()
-    {
-      const t = this.e.TABLE.addclass('top');
-      const h = t.THEAD.TR;
-      const r = t.TBODY.TR;
-      this.b1 = new ShowCW(this.csv_w, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
-      this.b2 = new ShowCW(this.csv_w, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
+      new klass(csv, h.TH.addclass('topl'), r.TD.addclass('topl'), 1);
+      new klass(csv, h.TH.addclass('topr'), r.TD.addclass('topr'), 2);
     }
   };
 
