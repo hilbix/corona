@@ -105,7 +105,15 @@ class ShowCorona extends Show
 
       function br(...a) { const r=[]; for (const x of a) { if (r.length) r.push(E().BR); r.push(x) }; return r }
 
-      this.el.THEAD.TR.th('WD', 'date', 'inf', 'dth', br('inf', '100k'), br('dth','100k'), br('inf','new'), br('dth','new'), br('inf','new','100k'), br('dth','new','100k'));
+      const pop	= this.csv.has('population');
+
+      const hdr	= [];
+      hdr.push('WD', 'date', 'inf', 'dth');
+      if (pop) hdr.push(br('inf', '100k'), br('dth','100k'));
+      hdr.push(br('inf','new'), br('dth','new'));
+      if (pop) hdr.push(br('inf','new','100k'), br('dth','new','100k'));
+
+      this.el.THEAD.TR.th(...hdr);
 
       let max = l.length;
       while (--max>=0 && l[max].date>today);
@@ -129,8 +137,11 @@ class ShowCorona extends Show
           d.TD.ltext(head || x.date);
           d.TD.rtext(`${x.infections}`);
           d.TD.rtext(`${x.deaths}`);
-          d.TD.rtext(`${x.infections / x.population * 100000 | 0}`);
-          d.TD.rtext(`${x.deaths / x.population * 100000 | 0}`);
+          if (pop)
+            {
+              d.TD.rtext(`${x.infections / x.population * 100000 | 0}`);
+              d.TD.rtext(`${x.deaths / x.population * 100000 | 0}`);
+            }
 
           const sum = {};
           for (let k=n; --k>=0 && k<=i; )
@@ -139,8 +150,11 @@ class ShowCorona extends Show
 
           d.TD.rtext(`${sum.newinfections}`).addclass('inf');
           d.TD.rtext(`${sum.newdeaths}`);
-          d.TD.rtext(`${sum.newinfections / x.population * 100000 | 0}`);
-          d.TD.rtext(`${sum.newdeaths / x.population * 100000 | 0}`);
+          if (pop)
+            {
+              d.TD.rtext(`${sum.newinfections / x.population * 100000 | 0}`);
+              d.TD.rtext(`${sum.newdeaths / x.population * 100000 | 0}`);
+            }
         }
 
       const b = this.el.TBODY;
@@ -233,6 +247,8 @@ class CSV
       return this.recs;
     }
 
+  has(head) { return this.heads.includes(head) }
+
   // load the CSV
   async Load()
     {
@@ -250,6 +266,7 @@ class CSV
         .replace(/\r/g,'')						// Hello Windows!  I do not like your ending.
         .split('\n');							// split into lines
       const heads	= lines.shift().split(';');			// split into columns on ;
+      this.heads	= heads;
       this.recs		= lines.map(_ => Object.fromEntries(_.split(';').map((v,k) => [heads[k], v])));
       console.log(this.url, heads);
       return this;
