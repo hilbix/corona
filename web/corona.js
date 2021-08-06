@@ -22,16 +22,20 @@ class Corona
 
   async main()
     {
-      this.e.SPAN.text(' Germany RKI: ');
-      this.csv_r	= await new CSV(ShowCR.URL).indicate(this.e).Load();
-      this.e.SPAN.text(' ');
-      this.csv_s	= await new CSV(ShowCS.URL).indicate(this.e).Load();
-//      this.e.SPAN.text(' World ECDC: ');
-//      this.csv_w	= await new CSV(ShowCW.URL).indicate(this.e).Load();
+      const load = this.e.SPAN;
       this.e.HR;
+
+      load.SPAN.text(' Germany RKI: ');
+      this.csv_r	= await new CSV(ShowCR.URL).indicate(load).Load();
       this.show(ShowCR, this.csv_r);
+
+      load.SPAN.text(' ');
+      this.csv_s	= await new CSV(ShowCS.URL).indicate(load).Load();
       this.show(ShowCS, this.csv_s);
-//      this.show(ShowCW, this.csv_w);
+
+      load.SPAN.text(' World Hopkins: ');
+      this.csv_h	= await new CSV(ShowCH.URL).indicate(load).Load();
+      this.show(ShowCH, this.csv_h);
     }
 
   show(klass, csv)
@@ -117,7 +121,8 @@ class ShowCorona extends Show
       while (--max>=0 && l[max].date>today);
 
       // skip today if there is no data yet (or nothing happened)
-      const li = parseInt(l[max].newinfections) || parseInt(l[max].newdeaths) ? 0 : 1;
+      const lm = l[max] || {};
+      let li = (lm.newinfections|0) && (lm.newdeaths|0) ? 0 : 1;
 
       if (max-li<0)
         max = li = 0;
@@ -163,8 +168,8 @@ class ShowCorona extends Show
       const b = this.el.TBODY;
       for (const k of [1,3,7,30])
         print(b.TR, max-li, k, `${k} days`, 'state');
-      for (let i=max+1; i>=n; )
-        print(b.TR, --i, n);
+      for (let i=max+1; --i>=0; )
+        print(b.TR, i, n);
     }
   };
 
@@ -202,20 +207,27 @@ class ShowCS extends ShowCorona
   };
 
 // Data presentation for
-// data/ecdc/covid19-ECDC.csv
-class ShowCW extends ShowCorona
+// data/hopkins/covid19-hopkins.csv
+// continent
+// Country/Region
+// Province/State
+// District,FIPS,Lat,Long,date,infections,recovered,deaths,newinfections,newrecovered,newdeaths
+class ShowCH extends ShowCorona
   {
-  static URL = 'data/ecdc/covid19-ECDC.csv';
+  static URL = 'data/hopkins/covid19-hopkins.csv';
   init()
     {
-      this.delta = 'wn';
+      this.delta = 'hn';
       super.init(
-        [ { code:'cw', csv:'continent' }
-        , { code:'cp', csv:'Country/Region', upd:'cw' }
-        , { code:'wn', input:_ => range(1,32), sort:sort_numeric }
+        [ { code:'hc', csv:'continent' }
+        , { code:'hr', csv:'Country/Region', upd:'hc' }
+        , { code:'hp', csv:'Province/State', upd:'hr' }
+        , { code:'hd', csv:'District', upd:'hp' }
+        , { code:'hn', input:_ => range(1,32), sort:sort_numeric }
         ]);
     }
   };
+
 
 ////////////////////////////////////////////////////////////////////////
 // Below should go into a lib
