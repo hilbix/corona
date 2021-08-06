@@ -27,6 +27,6 @@ rki/covid19-germany-federalstates.csv
 rki/covid19-germany-counties.csv
 rki/covid19-germany-counties-nuts3.csv
 hopkins/covid19-hopkins.csv
-ecdc/covid19-ECDC.csv
 URLS
+#ecdc/covid19-ECDC.csv
 
