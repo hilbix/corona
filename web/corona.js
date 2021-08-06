@@ -249,11 +249,19 @@ class CSV
 
   has(head) { return this.heads.includes(head) }
 
+  progress(got, total)
+    {
+      this.inf(`loaded ${((got/1000|0)/1000).toFixed(3)}/${(total/1000|0)/1000} MB ${this.url}`);
+    }
+
   // load the CSV
   async Load()
     {
       this.inf(`loading ${this.url}`);
-      this.csv = await fetch(this.url).then(_ => _.text());
+      this.csv = await fetch(this.url)
+        .then(_ => fetchProgress(_, this.progress.bind(this)))
+        .then(_ => _.text())
+        .catch(_ => { this.inf(`load failed: ${_}`); throw _ });
       this.inf(`${(this.$len / 1000 | 0)/1000}MB`);
       this.parse();
       return this;
