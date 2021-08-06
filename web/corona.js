@@ -19,7 +19,7 @@ class Corona
       this.e.text('Cookie ');
       const c = this.e.BUTTON.text('set').on('click', _ => UrlState.set());
       const d = this.e.BUTTON.text('del').on('click', _ => UrlState.del());
-      UrlState.COOKIE(id).on(a => { d.disabled(!a); c.$class = { green8:a, red8:!a }; d.$class = { grey8:!a } }).trigger();
+      UrlState.COOKIE(id).on(a => { d.disabled(!a); c.$class = { green8:!!a, red8:!a }; d.$class = { grey8:!a } }).trigger();
     }
 
   async main()
