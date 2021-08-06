@@ -17,9 +17,7 @@ class Corona
     {
       this.e	= E(id).clr();
       this.e.text('Cookie ');
-      const c = this.e.BUTTON.text('set').on('click', _ => UrlState.set());
-      const d = this.e.BUTTON.text('del').on('click', _ => UrlState.del());
-      UrlState.COOKIE(id).on(a => { d.disabled(!a); c.$class = { green8:!!a, red8:!a }; d.$class = { grey8:!a } }).trigger();
+      UrlState.buttons(id, this.e);
     }
 
   async main()
@@ -129,6 +127,7 @@ class ShowCorona extends Show
       function print(d, i, n, head, we)
         {
           const x = l[i];
+          if (!x) return;		// happens if no data
 
           const w = new Date(x.date).getDay();
           if (we || w==0 || w==6) d.addclass(we || 'weekend');
