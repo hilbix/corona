@@ -28,12 +28,12 @@ class Corona
       this.csv_r	= await new CSV(ShowCR.URL).indicate(this.e).Load();
       this.e.SPAN.text(' ');
       this.csv_s	= await new CSV(ShowCS.URL).indicate(this.e).Load();
-      this.e.SPAN.text(' World ECDC: ');
-      this.csv_w	= await new CSV(ShowCW.URL).indicate(this.e).Load();
+//      this.e.SPAN.text(' World ECDC: ');
+//      this.csv_w	= await new CSV(ShowCW.URL).indicate(this.e).Load();
       this.e.HR;
       this.show(ShowCR, this.csv_r);
       this.show(ShowCS, this.csv_s);
-      this.show(ShowCW, this.csv_w);
+//      this.show(ShowCW, this.csv_w);
     }
 
   show(klass, csv)
