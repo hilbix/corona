@@ -143,10 +143,14 @@ class ShowCorona extends Show
               d.TD.rtext(`${x.deaths / x.population * 100000 | 0}`);
             }
 
+          // recalculate the aggregation functions,
+          // as upstream apparently gets them wrong, sadly!
           const sum = {};
-          for (let k=n; --k>=0 && k<=i; )
-            for (const j of ['newinfections','newdeaths'])
-              sum[j] = (sum[j] || 0)+parseInt(l[i-k][j]);
+          for (const j of ['infections','deaths'])
+            {
+              const r = l[i-n];
+              sum[`new${j}`] = (x[j]|0) - (r ? r[j]|0 : 0);
+            }
 
           d.TD.rtext(`${sum.newinfections}`).addclass('inf');
           d.TD.rtext(`${sum.newdeaths}`);
